@@ -47,4 +47,4 @@ The output will display:
 - Suspicious IPs (if any) with multiple failed login attempts.
 - Admin account access attempts, including timestamps and IP addresses.
 
-Additionally, a plot of admin access attempts will be generated
+Additionally, a plot of admin access attempts will be generated.
