@@ -4,14 +4,13 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 
-# Define a function to parse log entries
+# parse log entries
 def parse_log_entry(log_entry):
-    # Example log entry format: "Jan 24 10:00:00 hostname sshd[1234]: Failed password for invalid user username from 192.168.1.1 port 1234 ssh2"
+    # example log entry format: "Jan 24 10:00:00 hostname sshd[1234]: Failed password for invalid user username from 192.168.1.1 port 1234 ssh2"
     pattern = re.compile(r'(\w{3} \d{1,2} \d{2}:\d{2}:\d{2}) (\S+) sshd\[\d+\]: (Failed|Accepted) password for (\S+) from (\S+) port \d+ ssh2')
     match = pattern.match(log_entry)
     if match:
         timestamp, hostname, status, username, ip = match.groups()
-        # Add the current year to the timestamp
         current_year = datetime.now().year
         timestamp_with_year = f"{timestamp} {current_year}"
         return {
@@ -23,10 +22,10 @@ def parse_log_entry(log_entry):
         }
     return None
 
-# Define a function to analyze logs
+# analyze logs
 def analyze_logs(log_entries, threshold=5, time_window=timedelta(minutes=10)):
     failed_attempts = defaultdict(list)
-    admin_accounts = {'root', 'admin'}  # Example admin accounts
+    admin_accounts = {'root', 'admin'}  # example admin accounts
 
     for entry in log_entries:
         if entry['status'] == 'Failed':
@@ -44,7 +43,7 @@ def analyze_logs(log_entries, threshold=5, time_window=timedelta(minutes=10)):
 
     return suspicious_ips, admin_access_attempts
 
-# Define a function to report findings
+# report findings
 def report_findings(suspicious_ips, admin_access_attempts):
     print("Suspicious IPs with multiple failed login attempts:")
     if suspicious_ips:
@@ -60,10 +59,9 @@ def report_findings(suspicious_ips, admin_access_attempts):
     else:
         print("No admin account access attempts detected.")
 
-# Define a function to visualize results
-# Define a function to visualize results
+# visualize results
 def visualize_results(suspicious_ips, admin_access_attempts):
-    # Visualize suspicious IPs
+    # visualize suspicious IPs
     if suspicious_ips:
         ip_counts = pd.Series(suspicious_ips).value_counts()
         ip_counts.plot(kind='bar', title='Suspicious IPs with Multiple Failed Login Attempts')
@@ -73,29 +71,24 @@ def visualize_results(suspicious_ips, admin_access_attempts):
     else:
         print("No suspicious IPs to visualize.")
 
-    # Visualize admin access attempts
+    # visualize admin access attempts
     if admin_access_attempts:
         admin_access_df = pd.DataFrame(admin_access_attempts)
         admin_access_df['timestamp'] = pd.to_datetime(admin_access_df['timestamp'])
-
-        # Adjust the timestamp to only show the time (without year)
         admin_access_df['time'] = admin_access_df['timestamp'].dt.strftime('%H:%M')
 
-        # Set the timestamp as the index to enable resampling
         admin_access_df.set_index('timestamp', inplace=True)
-
-        # Resample by minute ('min') to get access attempts per minute
         admin_access_df.resample('min').size().plot(kind='line', title='Admin Account Access Attempts Over Time')
 
         plt.xlabel('Time')
         plt.ylabel('Count')
-        plt.xticks(rotation=45)  # Rotate x-axis labels for readability
+        plt.xticks(rotation=45)
         plt.show()
     else:
         print("No admin account access attempts to visualize.")
 
 
-# Main function to execute the script
+#execute the script
 def main(log_file_path):
     try:
         with open(log_file_path, 'r') as file:
@@ -113,7 +106,7 @@ def main(log_file_path):
 
     visualize_results(suspicious_ips, admin_access_attempts)
 
-# Example usage
+
 if __name__ == "__main__":
-    log_file_path = 'auth.log'  # Replace with your log file path
+    log_file_path = 'auth.log'  # Log file path
     main(log_file_path)
